@@ -1,7 +1,9 @@
 package com.driver.services.impl;
 
 import java.util.List;
+import java.util.Optional;
 
+import com.driver.Exceptions.AdminNotFoundException;
 import com.driver.services.AdminService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -28,29 +30,43 @@ public class AdminServiceImpl implements AdminService {
 	@Override
 	public void adminRegister(Admin admin) {
 		//Save the admin in the database
+		adminRepository1.save(admin);
 	}
 
 	@Override
 	public Admin updatePassword(Integer adminId, String password) {
 		//Update the password of admin with given id
-
+		Optional<Admin> optionalAdmin = adminRepository1.findById(adminId);
+		if(optionalAdmin.isPresent()){
+			Admin admin = optionalAdmin.get();
+			admin.setPassword(password);
+			return adminRepository1.save(admin);
+		}
+		else{
+			throw new AdminNotFoundException("Admin Not Found");
+		}
 	}
-
 	@Override
 	public void deleteAdmin(int adminId){
 		// Delete admin without using deleteById function
-
+       Optional<Admin> optionalAdmin = adminRepository1.findById(adminId);
+	   if(optionalAdmin.isPresent()){
+		   Admin admin = optionalAdmin.get();
+		   adminRepository1.delete(admin);
+	   }
+	   else{
+		   throw new AdminNotFoundException("Admin with "+adminId+"Not found");
+	   }
 	}
-
 	@Override
 	public List<Driver> getListOfDrivers() {
 		//Find the list of all drivers
-
+      return driverRepository1.findAll();
 	}
-
 	@Override
 	public List<Customer> getListOfCustomers() {
 		//Find the list of all customers
+        return customerRepository1.findAll();
 
 	}
 

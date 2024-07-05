@@ -11,25 +11,40 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/customer")
 public class CustomerController {
-	@PostMapping("/register")
-	public ResponseEntity<Void> registerCustomer(@RequestBody Customer customer){
-		return new ResponseEntity<>(HttpStatus.OK);
-	}
+	@Autowired
+	CustomerService customerService;
 
+    @PostMapping("/register")
+	public ResponseEntity<String> registerCustomer(@RequestBody Customer customer){
+		try {
+			customerService.register(customer);
+			return new ResponseEntity<>("Customer Registered Successfully!! ",HttpStatus.OK);
+		}
+		catch(Exception e) {
+			return new ResponseEntity<>(e.getMessage(),HttpStatus.BAD_REQUEST);
+		}
+	}
 	@DeleteMapping("/delete")
 	public void deleteCustomer(@RequestParam Integer customerId){
+		customerService.deleteCustomer(customerId);
 	}
 
 	@PostMapping("/bookTrip")
-	public ResponseEntity<Integer> bookTrip(@RequestParam Integer customerId, @RequestParam String fromLocation, @RequestParam String toLocation, @RequestParam Integer distanceInKm) throws Exception {
-		return new ResponseEntity<>(bookedTrip.getTripBookingId(), HttpStatus.CREATED);
+	public ResponseEntity<String> bookTrip(@RequestParam Integer customerId, @RequestParam String fromLocation, @RequestParam String toLocation, @RequestParam Integer distanceInKm) throws Exception {
+		try {
+			TripBooking bookedTrip = customerService.bookTrip(customerId, fromLocation, toLocation, distanceInKm);
+			return new ResponseEntity<>("Your Booking Id is : "+bookedTrip.getTripBookingId(), HttpStatus.CREATED);
+		}
+		catch(Exception e){
+			return new ResponseEntity<>(e.getMessage(),HttpStatus.BAD_REQUEST);
+		}
 	}
-
 	@DeleteMapping("/complete")
-	public void completeTrip(@RequestParam Integer tripId){
+	public void completeTrip(@RequestParam("id") Integer tripId){
+		customerService.completeTrip(tripId);
 	}
-
 	@DeleteMapping("/cancelTrip")
-	public void cancelTrip(@RequestParam Integer tripId){
+	public void cancelTrip(@RequestParam("id") Integer tripId){
+		customerService.cancelTrip(tripId);
 	}
 }
